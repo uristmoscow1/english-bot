@@ -1,0 +1,4 @@
+flask==3.0.0
+requests==2.31.0
+gtts==2.4.0
+openai==0.28.1
