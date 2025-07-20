@@ -93,8 +93,29 @@ def webhook():
             send(chat, "✅ Правильно!")
         elif data_cd.startswith("wrong_"):
             send(chat, "❌ Попробуй ещё раз!")
+# ---------- обработка нажатий на кнопки ----------
+    if "callback_query" in data:
+        q = data["callback_query"]
+        chat = q["message"]["chat"]["id"]
+        answer_text = q["data"]
+        msg_id = q["message"]["message_id"]
 
-    return "ok", 200
+        if answer_text.startswith("right_"):
+            reply = "✅ Правильно!"
+        elif answer_text.startswith("wrong_"):
+            reply = "❌ Попробуй ещё раз!"
+        else:
+            reply = ""
+
+        # отправляем ответ
+        url = f"https://api.telegram.org/bot{TOKEN}/answerCallbackQuery"
+        requests.post(url, json={"callback_query_id": q["id"], "text": reply, "show_alert": True})
+
+        # убираем клавиатуру
+        requests.post(f"https://api.telegram.org/bot{TOKEN}/editMessageReplyMarkup",
+                      json={"chat_id": chat, "message_id": msg_id, "reply_markup": {"inline_keyboard": []}})
+
+        return "ok", 200
 
 @app.route("/")
 def index():
